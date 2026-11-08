@@ -701,6 +701,68 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(
 
             homeApiFab.isVisible = isLayout(PHONE)
 
+            // REFRESH_PATCH: refresh button + swipe to refresh (phone only)
+            if (isLayout(PHONE)) {
+                val doRefresh: () -> Unit = {
+                    homeViewModel.loadAndCancel(
+                        homeViewModel.apiName.value ?: noneApi.name,
+                        forceReload = true,
+                        fromUI = true
+                    )
+                    homeViewModel.reloadStored()
+                    showToast(R.string.action_reload, Toast.LENGTH_SHORT)
+                }
+                val ctx = root.context
+                val density = ctx.resources.displayMetrics.density
+                val matchParent = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+
+                // Swipe to refresh: wrap the master recycler in code
+                val recycler = homeMasterRecycler
+                val recyclerParent = recycler.parent as? android.view.ViewGroup
+                if (recyclerParent != null) {
+                    val index = recyclerParent.indexOfChild(recycler)
+                    recyclerParent.removeView(recycler)
+                    val swipe = object : androidx.swiperefreshlayout.widget.SwipeRefreshLayout(ctx) {
+                        // do not eat touches when the list is hidden (loading/error screens)
+                        override fun onTouchEvent(ev: android.view.MotionEvent): Boolean =
+                            if (recycler.visibility != View.VISIBLE) false else super.onTouchEvent(ev)
+
+                        override fun onInterceptTouchEvent(ev: android.view.MotionEvent): Boolean =
+                            if (recycler.visibility != View.VISIBLE) false else super.onInterceptTouchEvent(ev)
+                    }
+                    recycler.layoutParams =
+                        android.view.ViewGroup.LayoutParams(matchParent, matchParent)
+                    swipe.addView(recycler)
+                    recyclerParent.addView(
+                        swipe,
+                        index,
+                        android.widget.FrameLayout.LayoutParams(matchParent, matchParent)
+                    )
+                    swipe.setOnRefreshListener {
+                        doRefresh()
+                        swipe.postDelayed({ swipe.isRefreshing = false }, 1200)
+                    }
+                }
+
+                // Floating refresh button
+                val refreshFab = com.google.android.material.floatingactionbutton.FloatingActionButton(ctx)
+                refreshFab.size = com.google.android.material.floatingactionbutton.FloatingActionButton.SIZE_MINI
+                refreshFab.setImageResource(R.drawable.ic_refresh)
+                refreshFab.imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE)
+                refreshFab.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(0xCC333333.toInt())
+                refreshFab.contentDescription = ctx.getString(R.string.reload_provider)
+                refreshFab.setOnClickListener { doRefresh() }
+                val fabParams = android.widget.FrameLayout.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                fabParams.gravity = android.view.Gravity.BOTTOM or android.view.Gravity.END
+                fabParams.marginEnd = (16 * density).toInt()
+                fabParams.bottomMargin = (150 * density).toInt()
+                root.addView(refreshFab, fabParams)
+            }
+
             homePreviewReloadProvider.setOnClickListener {
                 homeViewModel.loadAndCancel(
                     homeViewModel.apiName.value ?: noneApi.name,
