@@ -181,6 +181,12 @@ object SettingsUIScreen : SearchableSettings {
                         icon = painterResource(R.drawable.tooltip_24px)
                     ),
                     Preference.PreferenceItem.SwitchPreference(
+                        preference = settings.ui.showBanner,
+                        title = stringResource(R.string.show_banner_settings),
+                        subtitle = stringResource(R.string.show_banner_settings_des),
+                        icon = painterResource(R.drawable.baseline_theaters_24)
+                    ),
+                    Preference.PreferenceItem.SwitchPreference(
                         preference = settings.ui.trailersEnabled,
                         title = stringResource(R.string.show_trailers_settings),
                         icon = painterResource(R.drawable.baseline_theaters_24)

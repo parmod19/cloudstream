@@ -84,6 +84,9 @@ class UIPreferences(preferences: PreferenceStore) {
     val trailersEnabled = preferences.getBoolean(
         "show_trailers_key", true
     )
+    val showBanner = preferences.getBoolean(
+        "show_banner_key", true
+    )
     val castEnabled = preferences.getBoolean(
         "show_cast_in_details_key", true
     )
