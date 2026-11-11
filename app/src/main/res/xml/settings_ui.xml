@@ -67,6 +67,12 @@
         <SwitchPreference
             android:defaultValue="true"
             android:icon="@drawable/baseline_theaters_24"
+            android:key="@string/show_banner_key"
+            android:summary="@string/show_banner_settings_des"
+            android:title="@string/show_banner_settings" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:icon="@drawable/baseline_theaters_24"
             android:key="@string/show_trailers_key"
             android:title="@string/show_trailers_settings" />
         <SwitchPreference

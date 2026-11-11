@@ -655,7 +655,25 @@ class HomeParentItemAdapterPreview(
         }
 
         private fun updatePreview(preview: Resource<Pair<Boolean, List<LoadResponse>>>) {
-            if (preview is Resource.Success) {
+            val bannerOn = androidx.preference.PreferenceManager
+                .getDefaultSharedPreferences(binding.root.context)
+                .getBoolean(binding.root.context.getString(R.string.show_banner_key), true)
+
+            fun hideBanner() {
+                binding.root.findViewById<android.view.View>(R.id.home_preview_title_holder)?.isGone = true
+                homePreviewShimmer?.stopShimmer()
+                homePreviewShimmer?.isGone = true
+                previewAdapter.submitList(listOf())
+                previewViewpager.setCurrentItem(0, false)
+                previewViewpager.isVisible = false
+                previewViewpagerText.isVisible = false
+                alternativeAccountPadding?.isVisible = true
+                (binding as? FragmentHomeHeadTvBinding)?.apply {
+                    homePreviewInfoBtt.isVisible = false
+                }
+            }
+
+            if (preview is Resource.Success && bannerOn) {
                 homeNonePadding.apply {
                     val params = layoutParams
                     params.height = 0
@@ -664,7 +682,8 @@ class HomeParentItemAdapterPreview(
             } else fixPaddingStatusbarView(homeNonePadding)
 
             when (preview) {
-                is Resource.Success -> {
+                is Resource.Success -> if (!bannerOn) hideBanner() else {
+                    binding.root.findViewById<android.view.View>(R.id.home_preview_title_holder)?.isVisible = true
                     homePreviewShimmer?.stopShimmer()
                     homePreviewShimmer?.isGone = true
                     previewAdapter.submitList(preview.value.second)
@@ -698,7 +717,7 @@ class HomeParentItemAdapterPreview(
                     }
                 }
 
-                is Resource.Loading -> {
+                is Resource.Loading -> if (!bannerOn) hideBanner() else {
                     previewViewpager.isGone = true
                     previewViewpagerText.isGone = true
                     homePreviewShimmer?.isVisible = true

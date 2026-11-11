@@ -814,4 +814,6 @@
     </plurals>
     <string name="player_is_live">Live</string>
     <string name="installed_plugins">Installed plugins</string>
+    <string name="show_banner_settings">Show featured banner</string>
+    <string name="show_banner_settings_des">Show the big banner card at the top of the Home screen</string>
 </resources>
